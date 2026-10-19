@@ -1,3 +1,4 @@
+import logging
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from pydantic import BaseModel, Field
 from app.ingestion import ingest
@@ -24,7 +25,8 @@ async def ingest_file(file: UploadFile = File(...), title: str = Form(...),
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     except Exception as exc:
-        raise HTTPException(status_code=500, detail="Ingestion failed; check server logs/configuration.") from exc
+    logging.exception("Document ingestion failed")
+    raise HTTPException(status_code=500, detail="Ingestion failed; check server logs/configuration.") from exc
 
 @app.post("/query")
 def query(req: QueryRequest):
